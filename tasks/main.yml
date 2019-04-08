@@ -1,0 +1,95 @@
+---
+- name: Ensure Docker-related python packages are present
+  pip: name=docker
+
+- name: Ensure the default directories are present
+  file: path="{{ item }}" state=directory mode=0755
+  with_items:
+    - "/opt/zoneminder/events"
+    - "/opt/zoneminder/images"
+    - "/opt/zoneminder/db"
+    - "/var/log/zoneminder"
+
+
+### Zoneminder network
+- name: Ensure the zoneminder docker network is created
+  docker_network:
+    name: "{{ zoneminder_network_name }}"
+
+
+### Zoneminder DB container
+- name: Define the default zoneminder db docker volumes
+  set_fact:
+    _zoneminder_db_docker_volumes:
+      - "/opt/zoneminder/db:/var/lib/mysql"
+
+- name: Append any additional volume mounts
+  set_fact:
+    _zoneminder_db_docker_volumes: "{{ _zoneminder_db_docker_volumes }} + {{ zoneminder_db_additional_volumes }}"
+
+- name: Set up the container environment variables
+  set_fact:
+    _zoneminder_db_env_vars:
+      TZ: "{{ zoneminder_timezone }}"
+      MYSQL_USER: "{{ zoneminder_db_user_name }}"
+      MYSQL_PASSWORD: "{{ zoneminder_db_user_password }}"
+      MYSQL_DATABASE: "{{ zoneminder_db_database_name }}"
+      MYSQL_ROOT_PASSWORD: "{{ zoneminder_db_root_password }}"
+      MYSQL_ROOT_HOST: "%"
+
+- name: Ensure the zoneminder db container is started
+  docker_container:
+    name: "{{ zoneminder_db_container_name }}"
+    image: "mysql/mysql-server:{{ zoneminder_mysql_container_version }}"
+    state: started
+    restart_policy: always
+    timeout: 300
+    networks:
+      - name: "{{ zoneminder_network_name }}"
+    purge_networks: true
+    volumes: "{{ _zoneminder_db_docker_volumes }}"
+    env: "{{ _zoneminder_db_env_vars | combine(zoneminder_db_environment_variables) }}"
+
+- name: Ensure the database has been provisioned
+  command: "docker run --rm --network {{ zoneminder_network_name }} --entrypoint bash zoneminderhq/zoneminder:{{ zoneminder_container_version }} -c 'mysql -u{{ zoneminder_db_user_name }} -p{{ zoneminder_db_user_password }} -h{{ zoneminder_db_container_name }} < /usr/share/zoneminder/db/zm_create.sql'"
+  args:
+    creates: "/opt/zoneminder/db/{{ zoneminder_db_database_name }}/Users.frm"
+
+
+### Zoneminder container
+- name: Define the default zoneminder docker volumes
+  set_fact:
+    _zoneminder_docker_volumes:
+      - "/opt/zoneminder/events:/var/cache/zoneminder/events"
+      - "/opt/zoneminder/images:/var/lib/zoneminder/images"
+      - "/var/log/zoneminder:/var/log/zm"
+
+- name: Append any additional volume mounts
+  set_fact:
+    _zoneminder_docker_volumes: "{{ _zoneminder_docker_volumes }} + {{ zoneminder_additional_volumes }}"
+
+- name: Set up the container environment variables
+  set_fact:
+    _zoneminder_env_vars:
+      TZ: "{{ zoneminder_timezone }}"
+      ZM_DB_USER: "{{ zoneminder_db_user_name }}"
+      ZM_DB_PASS: "{{ zoneminder_db_user_password }}"
+      ZM_DB_NAME: "{{ zoneminder_db_database_name }}"
+      ZM_DB_HOST: "{{ zoneminder_db_container_name }}"
+
+- name: Ensure zoneminder is started
+  docker_container:
+    name: zoneminder
+    image: "zoneminderhq/zoneminder:{{ zoneminder_container_version }}"
+    state: started
+    restart_policy: always
+    timeout: 300
+    shm_size: "4096M"
+    exposed_ports:
+      - 80
+    networks:
+      - name: "{{ zoneminder_network_name }}"
+      - name: bridge
+    purge_networks: true
+    volumes: "{{ _zoneminder_docker_volumes }}"
+    env: "{{ _zoneminder_env_vars | combine(zoneminder_environment_variables) }}"

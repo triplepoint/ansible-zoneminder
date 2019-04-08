@@ -1,0 +1,41 @@
+---
+# What tag of the zoneminder and mysql-server containers should we install?
+# https://hub.docker.com/r/zoneminderhq/zoneminder/dockerfile
+# https://hub.docker.com/r/mysql/mysql-server
+zoneminder_container_version: "latest-ubuntu18.04"
+zoneminder_mysql_container_version: "5.7"
+
+# A list of additional volumes to mount into the service docker container.
+# This is useful for things like SSL certificates and custom css/image assets.
+zoneminder_additional_volumes: []
+# - "/some/directory:/some/mount:ro"
+# - "/some/file.yml:/some/mount/file.yml:ro"
+
+# A list of additional volumes to mount into the database docker container.
+zoneminder_db_additional_volumes: []
+
+# A key/value set of environment variables and their values, which will be
+# set on the service docker container.
+zoneminder_environment_variables: []
+
+# A similar set of environment variables for the database container.
+zoneminder_db_environment_variables: []
+
+# The timezone to be set for both containers
+zoneminder_timezone: "America/Los_Angeles"
+
+# The name of the zoneminder database docker container
+zoneminder_db_container_name: zoneminderdb
+
+# Database access credentials for the zoneminder database, used by both
+# containers.
+zoneminder_db_user_name: zoneminderapp
+zoneminder_db_user_password: somepassword
+zoneminder_db_database_name: zm
+
+# The root password to set on the database
+zoneminder_db_root_password: someotherpassword
+
+# The name of the docker network shared between the service and database
+# containers
+zoneminder_network_name: zoneminder-net

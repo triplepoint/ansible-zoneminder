@@ -1,0 +1,16 @@
+---
+galaxy_info:
+  author: Jonathan Hanson
+  description: A deployment role for Zoneminder.
+  license: MIT
+  min_ansible_version: 2.4
+  platforms:
+    - name: Ubuntu
+      versions:
+        - xenial
+        - bionic
+  galaxy_tags:
+    - homeautomation
+    - security
+    - cameras
+dependencies: []

@@ -5,9 +5,13 @@
 - name: Ensure the default directories are present
   file: path="{{ item }}" state=directory mode=0755
   with_items:
+    - "/opt/zoneminder/db"
+
+- name: Ensure the default directories are present
+  file: path="{{ item }}" state=directory mode=0755 owner="www-data" group="www-data"
+  with_items:
     - "/opt/zoneminder/events"
     - "/opt/zoneminder/images"
-    - "/opt/zoneminder/db"
     - "/var/log/zoneminder"
 
 

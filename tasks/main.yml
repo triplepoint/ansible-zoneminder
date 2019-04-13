@@ -92,8 +92,8 @@
     exposed_ports:
       - 80
     networks:
-      - name: "{{ zoneminder_network_name }}"
       - name: bridge
+      - name: "{{ zoneminder_network_name }}"
     purge_networks: true
     volumes: "{{ _zoneminder_docker_volumes }}"
     env: "{{ _zoneminder_env_vars | combine(zoneminder_environment_variables) }}"

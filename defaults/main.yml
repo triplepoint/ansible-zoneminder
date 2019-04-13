@@ -5,6 +5,13 @@
 zoneminder_container_version: "latest-ubuntu18.04"
 zoneminder_mysql_container_version: "5.7"
 
+# The timezone to be set for both containers
+zoneminder_timezone: "America/Los_Angeles"
+
+# The name of the docker network shared between the service and database
+# containers
+zoneminder_network_name: zoneminder-net
+
 # A list of additional volumes to mount into the service docker container.
 # This is useful for things like SSL certificates and custom css/image assets.
 zoneminder_additional_volumes: []
@@ -21,21 +28,16 @@ zoneminder_environment_variables: []
 # A similar set of environment variables for the database container.
 zoneminder_db_environment_variables: []
 
-# The timezone to be set for both containers
-zoneminder_timezone: "America/Los_Angeles"
-
 # The name of the zoneminder database docker container
 zoneminder_db_container_name: zoneminderdb
 
+# The root password to set on the database
+# Needless to say, these passwords should be overridden in actual use
+zoneminder_db_root_password: someotherpassword
+
 # Database access credentials for the zoneminder database, used by both
 # containers.
+# Needless to say, these passwords should be overridden in actual use
 zoneminder_db_user_name: zoneminderapp
 zoneminder_db_user_password: somepassword
 zoneminder_db_database_name: zm
-
-# The root password to set on the database
-zoneminder_db_root_password: someotherpassword
-
-# The name of the docker network shared between the service and database
-# containers
-zoneminder_network_name: zoneminder-net

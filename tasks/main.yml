@@ -13,6 +13,7 @@
     - "/opt/zoneminder/events"
     - "/opt/zoneminder/images"
     - "/var/log/zoneminder"
+    - "/var/log/zoneminder_apache2"
 
 
 ### Zoneminder network
@@ -65,8 +66,9 @@
   set_fact:
     _zoneminder_docker_volumes:
       - "/opt/zoneminder/events:/var/cache/zoneminder/events"
-      - "/opt/zoneminder/images:/var/lib/zoneminder/images"
+      - "/opt/zoneminder/images:/var/cache/zoneminder/images"
       - "/var/log/zoneminder:/var/log/zm"
+      - "/var/log/zoneminder_apache2:/var/log/apache2"
 
 - name: Append any additional volume mounts
   set_fact:
